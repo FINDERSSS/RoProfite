@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RoProfite!</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #1a1a1a;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input[type="number"] {
+      width: 100px;
+      padding: 5px;
+      font-size: 16px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #555;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    #bigBox {
+      background-color: #444;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #boxContainer {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .box {
+      background-color: #333;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      max-width: 200px;
+      text-align: center;
+    }
+
+    #totalBox {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+     #boxContainer {
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    #boxContainer::-webkit-scrollbar {
+      width: 12px;
+    }
+
+    #boxContainer::-webkit-scrollbar-thumb {
+      background-color: #555;
+      border-radius: 8px;
+    }
+
+    #boxContainer::-webkit-scrollbar-thumb:hover {
+      background-color: #777;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ro Profite! (Beta Version 0.0.1)</h1>
+  <div id="bigBox">
+    <label for="lines">Enter Lines of Code:</label>
+    <input type="number" id="lines" min="0">
+    <button onclick="addBox()">Add Box</button>
+    <button onclick="clearBoxes()">Clear All</button>
+    <div id="boxContainer"></div>
+    <div id="totalBox">Total: R$0</div>
+  </div>
+
+  <script>
+    function addBox() {
+      const lines = parseInt(document.getElementById('lines').value, 10);
+      if (!isNaN(lines) && lines > 0) {
+        const date = new Date().toLocaleString();
+        const amount = lines;
+        const boxContent = `<div class="box">${date}<br>Lines of Code: ${formatNumberWithCommas(lines)}<br>Amount: R$${formatNumberWithCommas(amount)}</div>`;
+        document.getElementById('boxContainer').innerHTML += boxContent;
+
+        const total = calculateTotal();
+        document.getElementById('totalBox').textContent = `Total: R$${formatNumberWithCommas(total)}`;
+
+        saveToLocalStorage();
+      }
+    }
+
+    function calculateTotal() {
+      const boxes = document.querySelectorAll('.box');
+      let total = 0;
+      boxes.forEach((box) => {
+        const lines = parseInt(box.textContent.match(/Lines of Code: ([\d,]+)/)[1].replace(/,/g, ''), 10);
+        total += lines;
+      });
+      return total;
+    }
+
+    function formatNumberWithCommas(value) {
+      return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function clearBoxes() {
+      document.getElementById('boxContainer').innerHTML = '';
+      document.getElementById('totalBox').textContent = 'Total: R$0';
+      localStorage.removeItem('codingBoxes');
+    }
+
+    function saveToLocalStorage() {
+      const boxesHTML = document.getElementById('boxContainer').innerHTML;
+      localStorage.setItem('codingBoxes', boxesHTML);
+    }
+
+    window.addEventListener('load', () => {
+      const savedBoxes = localStorage.getItem('codingBoxes');
+      if (savedBoxes) {
+        document.getElementById('boxContainer').innerHTML = savedBoxes;
+        const total = calculateTotal();
+        document.getElementById('totalBox').textContent = `Total: R$${formatNumberWithCommas(total)}`;
+      }
+    });
+  </script>
+</body>
+</html>
